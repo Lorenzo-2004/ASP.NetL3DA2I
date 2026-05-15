@@ -1,0 +1,197 @@
+# ==================== #
+# .NET / C#           #
+# ==================== #
+
+## Build artifacts
+bin/
+obj/
+out/
+artifacts/
+packages/
+*.user
+*.userprefs
+*.suo
+*.cache
+*.pidb
+*.log
+*.ps1
+*.tmp
+*.temp
+
+## VS Code / Visual Studio
+.vs/
+.vscode/
+*.csproj.user
+*.sln.docstates
+*.suo
+*.userprefs
+
+## Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+## Rider / JetBrains
+.idea/
+*.DotSettings.user
+*.sln.iml
+
+## Benchmark results
+BenchmarkDotNet.Artifacts/
+
+## Publish output
+publish/
+*.nupkg
+
+## Entity Framework Migrations (optionnel - recommandé de garder mais à vérifier)
+# Migrations/*.Designer.cs
+# Migrations/*.cs
+
+## SQL Server / PostgreSQL local databases
+*.mdf
+*.ldf
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+
+## Environment variables
+.env
+.env.*
+!.env.example
+
+## User-specific files
+*.rsuser
+*.dbmdl
+*.jfm
+
+# ==================== #
+# SECURITY & SECRETS   #
+# ==================== #
+
+## Config files with secrets
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+*secrets.json
+*secret*.json
+*private*.json
+*.key
+*.pem
+*.crt
+
+## JWT secrets / private keys
+*.pfx
+*.snk
+*.p12
+
+## Connection strings (si vous avez mis le mot de passe)
+**/appsettings.json
+
+## .NET user secrets
+secrets.json
+
+# ==================== #
+# LOGS & DEBUG         #
+# ==================== #
+
+## Logs
+logs/
+*.log
+*.txt
+*.trace
+*.diag
+
+## Crash reports
+crashdump.*
+*.dmp
+*.mdmp
+*.hprof
+
+## Performance counters
+*.perfcounters
+
+# ==================== #
+# OS & EDITOR FILES    #
+# ==================== #
+
+## Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+## Linux
+*~
+.directory
+*.swp
+*.swo
+
+# ==================== #
+# DEPENDENCIES         #
+# ==================== #
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+!packages/repositories.config
+
+## Node (si vous avez un frontend plus tard)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ==================== #
+# DOCKER               #
+# ==================== #
+
+docker-compose.override.yml
+*.dockerignore
+.docker/
+
+# ==================== #
+# MISC                 #
+# ==================== #
+
+## Temporary files
+*.tmp
+*.temp
+*.cache
+*.bak
+*.old
+*.orig
+
+## Backup files
+*.backup
+*.bak
+
+## Certificate files
+*.p7b
+*.p7c
+*.pfx
+
+## Generated files
+*.generated.cs
+*.Designer.cs
+
+## Profiling files
+*.perfview
+*.etl
+
+## JetBrains
+_ReSharper.Caches/
+*.DotSettings.user
