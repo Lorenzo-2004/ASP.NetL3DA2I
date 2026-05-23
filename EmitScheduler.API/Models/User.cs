@@ -18,6 +18,9 @@ public class User
     
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
+
+    public string? NumeroEtudiant { get; set; }
+    public string? Specialite { get; set; }
     
     public int? ProfesseurId { get; set; }
     public Professeur? Professeur { get; set; }

@@ -344,6 +344,7 @@ public class AdminController : ControllerBase
     
     // GET: api/admin/stats
     [HttpGet("stats")]
+    [HttpGet("dashboard-stats")] // 💡 Ajout de cet attribut pour corriger l'erreur 404 du frontend !
     public async Task<ActionResult<object>> GetStats()
     {
         var stats = new
@@ -363,5 +364,42 @@ public class AdminController : ControllerBase
         };
         
         return Ok(stats);
+    }
+    // ==================== AJOUT D'UNE MENTION ====================
+    
+    // POST: api/admin/mentions
+    [HttpPost("mentions")]
+    public async Task<IActionResult> CreerMention([FromBody] CreateMentionDto dto)
+    {
+        try
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Nom) || string.IsNullOrWhiteSpace(dto.Code))
+            {
+                return BadRequest(new { message = "Le nom et le code de la mention sont obligatoires." });
+            }
+
+            // Vérifier si le code existe déjà pour éviter les doublons
+            var existeDeja = await _db.Mentions.AnyAsync(m => m.Code.ToLower() == dto.Code.ToLower());
+            if (existeDeja)
+            {
+                return BadRequest(new { message = "Une mention avec ce code existe déjà." });
+            }
+
+            // Création de l'entité (À adapter selon ton entité Mention réelle)
+            var nouvelleMention = new Mention
+            {
+                Nom = dto.Nom,
+                Code = dto.Code.ToUpper()
+            };
+
+            _db.Mentions.Add(nouvelleMention);
+            await _db.SaveChangesAsync();
+
+            return Ok(new { message = "Mention créée avec succès !", id = nouvelleMention.Id });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erreur interne du serveur", error = ex.Message });
+        }
     }
 }

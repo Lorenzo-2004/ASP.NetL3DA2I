@@ -11,7 +11,6 @@ namespace EmitScheduler.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[AllowAnonymous]  // ← AJOUTEZ CETTE LIGNE pour que tout le controller soit public
 public class AuthController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -21,16 +20,17 @@ public class AuthController : ControllerBase
     {
         _context = context;
         _jwtService = jwtService;
+        
+        // 💡 Crée l'administrateur au premier appel de l'API s'il n'existe pas
+        SeedAdminUser();
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-        // Vérifier si l'utilisateur existe déjà
         if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             return BadRequest(new { message = "Cet email est déjà utilisé" });
 
-        // Créer le nouvel utilisateur
         var user = new User
         {
             Email = request.Email,
@@ -39,13 +39,14 @@ public class AuthController : ControllerBase
             LastName = request.LastName,
             Role = request.Role ?? "Etudiant",
             CreatedAt = DateTime.UtcNow,
+            NumeroEtudiant = request.NumeroEtudiant,
+            Specialite = request.Specialite,
             IsActive = true
         };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        // Générer le token
         var roles = new List<string> { user.Role };
         var token = _jwtService.GenerateToken(user.Id.ToString(), user.Email, roles);
 
@@ -63,18 +64,14 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        // Chercher l'utilisateur par email
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-        // Vérifier le mot de passe
         if (user == null || !VerifyPassword(request.Password, user.PasswordHash))
             return Unauthorized(new { message = "Email ou mot de passe incorrect" });
 
-        // Mettre à jour la dernière connexion
         user.LastLoginAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
-        // Générer le token
         var roles = new List<string> { user.Role };
         var token = _jwtService.GenerateToken(user.Id.ToString(), user.Email, roles);
 
@@ -89,9 +86,8 @@ public class AuthController : ControllerBase
         });
     }
 
-    // Optionnel: un endpoint pour obtenir les infos de l'utilisateur connecté
     [HttpGet("me")]
-    [Authorize]  // Celui-ci doit être protégé
+    [Authorize]
     public async Task<IActionResult> GetCurrentUser()
     {
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -112,6 +108,36 @@ public class AuthController : ControllerBase
             user.CreatedAt,
             user.LastLoginAt
         });
+    }
+
+    private void SeedAdminUser()
+    {
+        try
+        {
+            // Vérifie si un administrateur existe déjà dans la base PostgreSQL
+            var adminExists = _context.Users.Any(u => u.Role == "Admin");
+            if (!adminExists)
+            {
+                var admin = new User
+                {
+                    Email = "admin@emit-university.fr",
+                    PasswordHash = HashPassword("AdminEMIT2026!"),
+                    FirstName = "EMIT",
+                    LastName = "Admin",
+                    Role = "Admin",
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = true
+                };
+
+                _context.Users.Add(admin);
+                _context.SaveChanges();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Évite de bloquer l'application en cas d'erreur de migration initiale
+            Console.WriteLine($"Erreur d'initialisation Admin : {ex.Message}");
+        }
     }
 
     private string HashPassword(string password)
@@ -135,6 +161,8 @@ public class RegisterRequest
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string? Role { get; set; }
+    public string? NumeroEtudiant { get; set; }
+    public string? Specialite { get; set; }
 }
 
 public class LoginRequest
