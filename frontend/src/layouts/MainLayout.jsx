@@ -6,15 +6,15 @@ import Sidebar from '../components/layout/Sidebar';
 export default function MainLayout() {
     return (
         <div className="min-h-screen bg-[#f8fafc]">
-            {/* Barre de navigation supérieure */}
             <Navbar />
 
             <div className="flex">
-                {/* Barre latérale fixe gauche */}
+                {/* La Sidebar doit avoir une largeur fixe (w-64) */}
                 <Sidebar />
 
-                {/*ZONE DE CONTENU DYNAMIQUE : Étendue à 100% de la largeur restante */}
-                <main className="flex-1 pt-16 pl-64 min-h-screen w-full overflow-x-hidden">
+                {/* --- MODIFICATION ICI --- */}
+                {/* On enlève 'pl-64'. 'flex-1' dit au main de prendre tout l'espace restant */}
+                <main className="flex-1 min-h-screen w-full overflow-hidden">
                     <div className="w-full p-6 md:p-8">
                         <Outlet />
                     </div>

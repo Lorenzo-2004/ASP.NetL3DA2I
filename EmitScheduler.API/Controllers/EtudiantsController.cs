@@ -61,54 +61,62 @@ public class EtudiantsController : ControllerBase
         return Ok(etudiants.Select(Map));
     }
 
-    [HttpPost]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<EtudiantDto>> Create(CreateEtudiantDto dto)
+   [HttpPost]
+[Authorize(Roles = "Admin")]
+public async Task<ActionResult<EtudiantDto>> Create([FromForm] CreateEtudiantDto dto, IFormFile? photo)
+{
+    var niveau = await _db.Niveaux.Include(n => n.Mention)
+        .FirstOrDefaultAsync(n => n.Id == dto.NiveauId);
+    if (niveau is null) return BadRequest($"Niveau {dto.NiveauId} introuvable.");
+
+    if (niveau.Code == "L1" && niveau.Groupe is null)
+        return BadRequest("Pour L1, assignez l'étudiant à L1A ou L1B, pas à L1 directement.");
+
+    if (await _db.Etudiants.AnyAsync(e => e.NumeroEtudiant == dto.NumeroEtudiant))
+        return Conflict($"Le numéro étudiant '{dto.NumeroEtudiant}' est déjà utilisé.");
+
+    var etudiant = new Etudiant
     {
-        var niveau = await _db.Niveaux.Include(n => n.Mention)
-            .FirstOrDefaultAsync(n => n.Id == dto.NiveauId);
-        if (niveau is null) return BadRequest($"Niveau {dto.NiveauId} introuvable.");
+        Nom = dto.Nom, 
+        Prenom = dto.Prenom,
+        NumeroEtudiant = dto.NumeroEtudiant, 
+        NiveauId = dto.NiveauId,
+        Email = dto.Email
+    };
+    
+    _db.Etudiants.Add(etudiant);
+    await _db.SaveChangesAsync();
+    
+    // Rechargez avec les infos de navigation pour le mapping
+    etudiant.Niveau = niveau;
+    return CreatedAtAction(nameof(GetById), new { id = etudiant.Id }, Map(etudiant));
+}
 
-        // Pour L1 : l'étudiant doit être dans L1A ou L1B (pas dans un L1 sans groupe)
-        if (niveau.Code == "L1" && niveau.Groupe is null)
-            return BadRequest("Pour L1, assignez l'étudiant à L1A ou L1B, pas à L1 directement.");
+[HttpPut("{id:int}")]
+[Authorize(Roles = "Admin")]
+public async Task<IActionResult> Update(int id, [FromForm] CreateEtudiantDto dto, IFormFile? photo)
+{
+    var etudiant = await _db.Etudiants.FindAsync(id);
+    if (etudiant is null) return NotFound($"Étudiant {id} introuvable.");
 
-        if (await _db.Etudiants.AnyAsync(e => e.NumeroEtudiant == dto.NumeroEtudiant))
-            return Conflict($"Le numéro étudiant '{dto.NumeroEtudiant}' est déjà utilisé.");
+    var niveau = await _db.Niveaux.FindAsync(dto.NiveauId);
+    if (niveau is null) return BadRequest($"Niveau {dto.NiveauId} introuvable.");
+    
+    if (niveau.Code == "L1" && niveau.Groupe is null)
+        return BadRequest("Pour L1, assignez l'étudiant à L1A ou L1B.");
 
-        var etudiant = new Etudiant
-        {
-            Nom = dto.Nom, Prenom = dto.Prenom,
-            NumeroEtudiant = dto.NumeroEtudiant, NiveauId = dto.NiveauId
-        };
-        _db.Etudiants.Add(etudiant);
-        await _db.SaveChangesAsync();
-        etudiant.Niveau = niveau;
-        return CreatedAtAction(nameof(GetById), new { id = etudiant.Id }, Map(etudiant));
-    }
+    if (await _db.Etudiants.AnyAsync(e => e.NumeroEtudiant == dto.NumeroEtudiant && e.Id != id))
+        return Conflict($"Le numéro étudiant '{dto.NumeroEtudiant}' est déjà utilisé.");
 
-    [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(int id, CreateEtudiantDto dto)
-    {
-        var etudiant = await _db.Etudiants.FindAsync(id);
-        if (etudiant is null) return NotFound($"Étudiant {id} introuvable.");
-
-        var niveau = await _db.Niveaux.FindAsync(dto.NiveauId);
-        if (niveau is null) return BadRequest($"Niveau {dto.NiveauId} introuvable.");
-        if (niveau.Code == "L1" && niveau.Groupe is null)
-            return BadRequest("Pour L1, assignez l'étudiant à L1A ou L1B.");
-
-        if (await _db.Etudiants.AnyAsync(e => e.NumeroEtudiant == dto.NumeroEtudiant && e.Id != id))
-            return Conflict($"Le numéro étudiant '{dto.NumeroEtudiant}' est déjà utilisé.");
-
-        etudiant.Nom = dto.Nom;
-        etudiant.Prenom = dto.Prenom;
-        etudiant.NumeroEtudiant = dto.NumeroEtudiant;
-        etudiant.NiveauId = dto.NiveauId;
-        await _db.SaveChangesAsync();
-        return NoContent();
-    }
+    etudiant.Nom = dto.Nom;
+    etudiant.Prenom = dto.Prenom;
+    etudiant.NumeroEtudiant = dto.NumeroEtudiant;
+    etudiant.Email = dto.Email; 
+    etudiant.NiveauId = dto.NiveauId;
+    
+    await _db.SaveChangesAsync();
+    return NoContent();
+}
 
     [HttpDelete("{id:int}")]
     [Authorize(Roles = "Admin")]
@@ -121,8 +129,16 @@ public class EtudiantsController : ControllerBase
         return NoContent();
     }
 
-    private static EtudiantDto Map(Etudiant e) => new(
-        e.Id, e.Nom, e.Prenom, e.NumeroEtudiant, e.NiveauId,
-        $"{e.Niveau.Mention.Code} {e.Niveau.Label}"
-    );
+    // Dans EtudiantsController.cs
+private static EtudiantDto Map(Etudiant e) => new(
+    e.Id, 
+    e.Nom, 
+    e.Prenom, 
+    e.NumeroEtudiant, 
+    e.Email, 
+    e.NiveauId, 
+    $"{e.Niveau.Mention.Code} {e.Niveau.Label}", 
+    e.Niveau.MentionId, // Accès via le niveau
+    e.Niveau.Mention.Nom // Accès via le niveau
+);
 }

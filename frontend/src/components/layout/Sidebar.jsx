@@ -10,6 +10,7 @@ import {
     Layers,
     LogOut
 } from 'lucide-react';
+import { GraduationCap } from "lucide-react";
 
 export default function Sidebar() {
     const location = useLocation();
@@ -35,6 +36,11 @@ export default function Sidebar() {
             path: '/admin/mentions', // 🚀 Ta nouvelle page GestionMentions est connectée ici
             label: 'Mentions',
             icon: Layers
+        },
+        {
+            path: '/admin/niveaux',
+            label: 'Niveaux',
+            icon: GraduationCap
         },
         {
             path: '/admin/etudiants',

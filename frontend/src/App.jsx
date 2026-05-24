@@ -9,6 +9,8 @@ import LoginAdmin from './pages/auth/LoginAdmin';
 import GestionEtudiants from './pages/admin/GestionEtudiants';
 import GestionProfesseurs from './pages/admin/GestionProfesseurs';
 import GestionMentions from './pages/admin/GestionMentions';
+import GestionNiveaux from './pages/admin/GestionNiveaux';
+import GestionCours from './pages/admin/GestionCours';
 
 export default function App() {
   return (
@@ -28,7 +30,9 @@ export default function App() {
 
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="mentions" element={<GestionMentions />} />
-        <Route path="gestion-etudiants" element={<GestionEtudiants />} />
+        <Route path="niveaux" element={<GestionNiveaux/>} />
+        <Route path="cours" element={<GestionCours />}/>
+        <Route path="etudiants" element={<GestionEtudiants />} />
         <Route path="gestion-professeurs" element={<GestionProfesseurs />} />
       </Route>
 

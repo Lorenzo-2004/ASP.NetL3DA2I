@@ -7,67 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EmitScheduler.API.Controllers;
 
-// ── COURS ─────────────────────────────────────────────────────────────────────
-
-[ApiController]
-[Route("api/[controller]")]
-[Authorize]
-public class CoursController : ControllerBase
-{
-    private readonly AppDbContext _db;
-    public CoursController(AppDbContext db) => _db = db;
-
-    [HttpGet]
-    [Authorize(Roles = "Admin,Professeur,Etudiant")]
-    public async Task<ActionResult<IEnumerable<CoursDto>>> GetAll() =>
-        Ok(await _db.Cours.OrderBy(c => c.Intitule)
-            .Select(c => new CoursDto(c.Id, c.Intitule, c.Description)).ToListAsync());
-
-    [HttpGet("{id:int}")]
-    [Authorize(Roles = "Admin,Professeur,Etudiant")]
-    public async Task<ActionResult<CoursDto>> GetById(int id)
-    {
-        var c = await _db.Cours.FindAsync(id);
-        return c is null ? NotFound() : Ok(new CoursDto(c.Id, c.Intitule, c.Description));
-    }
-
-    [HttpPost]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<CoursDto>> Create(CreateCoursDto dto)
-    {
-        var cours = new Cours { Intitule = dto.Intitule, Description = dto.Description };
-        _db.Cours.Add(cours);
-        await _db.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = cours.Id },
-            new CoursDto(cours.Id, cours.Intitule, cours.Description));
-    }
-
-    [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(int id, CreateCoursDto dto)
-    {
-        var cours = await _db.Cours.FindAsync(id);
-        if (cours is null) return NotFound();
-        cours.Intitule = dto.Intitule;
-        cours.Description = dto.Description;
-        await _db.SaveChangesAsync();
-        return NoContent();
-    }
-
-    [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var cours = await _db.Cours.FindAsync(id);
-        if (cours is null) return NotFound();
-        _db.Cours.Remove(cours);
-        await _db.SaveChangesAsync();
-        return NoContent();
-    }
-}
-
-// ── SALLES ────────────────────────────────────────────────────────────────────
-
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
