@@ -17,16 +17,18 @@ public record ProfesseurDto(int Id, string Nom, string Prenom, string Email, Lis
 public record CreateProfesseurDto(string Nom, string Prenom, string Email, List<int> MentionIds, List<int> CoursIds);
 
 // ── COURS ─────────────────────────────────────────────────────────────────────
-public record CoursDto(int Id, string Intitule, string Description, string Professeur, string Salle, string Statut);
+public record CoursDto(
+    int Id, 
+    string Intitule, 
+    string Description, 
+    int NiveauId, 
+    List<int> ProfesseurIds
+);
 public record CreateCoursDto(
     string Intitule,
     string Description,
-    int ProfesseurId,
     int NiveauId,
-    int SalleId,
-    int Jour, // 0 pour Dimanche, 1 pour Lundi, etc.
-    TimeSpan HeureDebut, // Le JSON enverra "08:00:00"
-    TimeSpan HeureFin
+    List<int> ProfesseurIds // Pour gérer le multi-select
 );
 
 // ── ETUDIANT ──────────────────────────────────────────────────────────────────
