@@ -12,6 +12,7 @@ import GestionMentions from './pages/admin/GestionMentions';
 import GestionNiveaux from './pages/admin/GestionNiveaux';
 import GestionCours from './pages/admin/GestionCours';
 import GestionSalles from './pages/admin/GestionSalle';
+import GestionEDT from './pages/admin/GestionEDT';
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="etudiants" element={<GestionEtudiants />} />
         <Route path="professeurs" element={<GestionProfesseurs />} />
         <Route path="salles" element={<GestionSalles />} />
+        <Route path="edt" element={<GestionEDT />} />
       </Route>
 
       {/* Redirection automatique vers login si la route n'existe pas */}

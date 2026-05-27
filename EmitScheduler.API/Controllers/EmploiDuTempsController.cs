@@ -231,6 +231,26 @@ public class EmploiDuTempsController : ControllerBase
         return CreatedAtAction(nameof(GetAll), created.Select(e => Map(e, now)));
     }
 
+    [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Update(int id, [FromBody] CreateEmploiDuTempsDto dto)
+    {
+        var emp = await _db.EmploisDuTemps.FindAsync(id);
+        if (emp == null) return NotFound();
+
+        // Mise à jour des propriétés
+        emp.NiveauId = dto.NiveauId;
+        emp.CoursId = dto.CoursId;
+        emp.ProfesseurId = dto.ProfesseurId;
+        emp.SalleId = dto.SalleId;
+        emp.Jour = (DayOfWeek)dto.Jour;
+        emp.HeureDebut = TimeOnly.Parse(dto.HeureDebut);
+        emp.HeureFin = TimeOnly.Parse(dto.HeureFin);
+
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
     // DELETE api/emploidutemps/5
     [HttpDelete("{id:int}")]
     [Authorize(Roles = "Admin")]

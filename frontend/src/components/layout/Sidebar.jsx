@@ -23,7 +23,7 @@ export default function Sidebar() {
             icon: LayoutDashboard
         },
         {
-            path: '/admin/emplois-du-temps',
+            path: '/admin/edt',
             label: 'Emploi du temps',
             icon: Calendar
         },

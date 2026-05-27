@@ -57,7 +57,6 @@ export default function Login() {
     return (
         <div className="min-h-screen w-full flex flex-col md:flex-row font-sans antialiased bg-gray-50">
 
-            {/* BANNER GAUCHE */}
             <div className="w-full md:w-1/2 bg-[#002347] text-white p-8 md:p-16 flex flex-col justify-between relative overflow-hidden">
                 <div>
                     <div className="flex items-center gap-2 text-xl font-bold tracking-wide">
